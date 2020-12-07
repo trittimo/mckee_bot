@@ -23,6 +23,8 @@ attachment_counts = {}
 
 (_,_,file_names) = next(os.walk("messages"))
 for file_name in file_names:
+    if not file_name.endswith(".pack"):
+        continue
     with open("messages/" + file_name, "rb") as result_file:
         data = msgpack.unpackb(result_file.read(), raw=False)
     for comment in data:
@@ -103,7 +105,7 @@ def print_reaction_data():
 
 
 def show_time_graph(user):
-    init = datetime(2019, 1, 10)
+    init = datetime(2020, 12, 6)
     times = [(init + x).strftime("%I %p") for x in (np.arange(24) * timedelta(hours=1))]
     d0 = date(2016, 8, 27) # Start of the server
     today = datetime.today().date()
@@ -127,7 +129,7 @@ def show_time_graph(user):
         colorscale='Viridis'))
 
     fig.update_layout(
-        title='AMcKee posts by hour',
+        title=user + ' posts by hour',
         xaxis_nticks = 35)
     
     fig.show()
@@ -185,3 +187,4 @@ def print_embeds_data():
 # show_messages_by_date()
 show_time_graph("Cyber Jockey")
 # print_embeds_data()
+# print_reaction_data()

@@ -5,3 +5,4 @@ data/messages/*
 .vscode/*
 data/hidden/*
 data/json_messages/*
+data/messages_csv/*
