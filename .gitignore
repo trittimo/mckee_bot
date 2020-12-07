@@ -1,2 +1,7 @@
 data/private.json
+data/server.json
 data/messages/*
+.DS_Store
+.vscode/*
+data/hidden/*
+data/json_messages/*
