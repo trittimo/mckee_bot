@@ -5,9 +5,6 @@ import csv
 import os
 from datetime import datetime
 
-username = "AMcKee" # The user we will be retrieving messages for
-min_size = 5 # The minimum number of users
-
 with open("server.json") as f:
     server = json.loads(f.read())
 
