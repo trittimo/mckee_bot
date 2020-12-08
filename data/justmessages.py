@@ -10,7 +10,7 @@ with open("server.json") as f:
 
 channels = {c["id"]: c["name"] for c in server["channels"]}
 
-lines = [["Message ID", "Username", "Channel", "Message", "Timestamp", "Edited"]]
+lines = [["Message ID", "Username", "Channel", "Message", "Timestamp", "Edited", "Upvotes", "Downvotes"]]
 attachments = [["Message ID", "Filename", "Url", "Size"]]
 reactions = [["Message ID", "Emoji", "User Reacting"]]
 
@@ -27,17 +27,21 @@ for file_name in file_names:
         message = comment["content"]
         edited = comment["edited_timestamp"] or ""
 
-        if edited and "." in edited:
-            edited = datetime.fromisoformat(edited).strftime("%Y-%m-%d %H:%M:%S")
-        elif edited:
-            edited = datetime.fromisoformat(edited).strftime("%Y-%m-%d %H:%M:%S")
+        if edited:
+            edited = datetime.fromisoformat(edited).strftime("%Y-%m-%d %I:%M:%S %p")
 
-        if "." in comment["timestamp"]:
-            time = datetime.fromisoformat(comment["timestamp"]).strftime("%Y-%m-%d %H:%M:%S")
-        else:
-            time = datetime.fromisoformat(comment["timestamp"]).strftime("%Y-%m-%d %H:%M:%S")
+        time = datetime.fromisoformat(comment["timestamp"]).strftime("%Y-%m-%d %I:%M:%S %p")
 
-        lines.append([mid, username, channel, message, time, edited])
+        upvotes = 0
+        downvotes = 0
+        if "reactions" in comment:
+            for reaction in comment["reactions"]:
+                if reaction["emoji"]["name"] == "reddit_upvote":
+                    upvotes += reaction["count"]
+                elif reaction["emoji"]["name"] == "reddit_downvote":
+                    downvotes += reaction["count"]
+
+        lines.append([mid, username, channel, message, time, edited, upvotes, downvotes])
 
         if "attachments" in comment:
             for attach in comment["attachments"]:

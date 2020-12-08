@@ -1,5 +1,6 @@
 import msgpack
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import os
 from tabulate import tabulate
 from datetime import datetime
@@ -7,6 +8,7 @@ from datetime import date
 from datetime import timedelta
 import numpy as np
 from bisect import bisect
+import json
 
 most_upvotes = {}
 highest_upvotes = {}
@@ -15,11 +17,20 @@ given_emojis = {}
 given_upvotes = {}
 given_downvotes = {}
 msg_timestamps = {}
+total_upvotes = {}
+total_downvotes = {}
 embeds = {}
 image_counts = {}
 video_counts = {}
 link_counts = {}
 attachment_counts = {}
+
+messages = {}
+
+with open("server.json") as f:
+    server = json.loads(f.read())
+
+server_channels = {c["id"]: c["name"] for c in server["channels"]}
 
 (_,_,file_names) = next(os.walk("messages"))
 for file_name in file_names:
@@ -27,9 +38,15 @@ for file_name in file_names:
         continue
     with open("messages/" + file_name, "rb") as result_file:
         data = msgpack.unpackb(result_file.read(), raw=False)
+    if len(data) > 0:
+        channel = server_channels[data[0]["channel_id"]]
+        if not channel in messages:
+            messages[channel] = data
     for comment in data:
         username = comment["author"]["username"]
         if not username in most_upvotes:
+            total_upvotes[username] = 0
+            total_downvotes[username] = 0
             most_upvotes[username] = 0
             highest_upvotes[username] = 0
             comment_count[username] = 0
@@ -79,6 +96,11 @@ for file_name in file_names:
                 given_emojis[giver_username] += 1
 
             count = reaction["count"]
+            if reaction["emoji"]["name"] == "reddit_upvote":
+                total_upvotes[username] += count
+            
+            if reaction["emoji"]["name"] == "reddit_downvote":
+                total_downvotes[username] += count
 
             most_upvotes[username] += count
             if count > highest_upvotes[username]:
@@ -102,7 +124,67 @@ def print_reaction_data():
 
     print(tabulate(result, headers=headers,tablefmt="fancy_grid"))
 
+def print_reaction_totals():
+    sort = {k: v for k, v in sorted(total_upvotes.items(), key=lambda i: i[1], reverse=True)}
+    headers = ["User", "Upvotes received"]
+    result = []
+    for user in sort:
+        if sort[user] == 0:
+            continue
+        result.append([user, sort[user]])
+    
+    print(tabulate(result, headers=headers, tablefmt="fancy_grid"))
 
+def show_reaction_graph(emoji_name):
+    # First accumulate reaction data for all users
+
+    accum = {}
+    for channel in messages:
+        for message in messages[channel]:
+            poster = message["author"]["username"]
+            message_date = datetime.fromisoformat(message["timestamp"])
+
+            if not "reactions" in message:
+                continue
+
+            if not poster in accum:
+                accum[poster] = []
+
+            for reaction in message["reactions"]:
+                reaction_name = reaction["emoji"]["name"]
+                if reaction_name != emoji_name:
+                    continue
+                reaction_count = reaction["count"]
+                accum[poster].append([message_date, reaction_count])
+
+    init = datetime(2020, 12, 6)
+    times = [(init + x).strftime("%I %p") for x in (np.arange(24) * timedelta(hours=1))]
+    d0 = date(2016, 8, 27) # Server start
+
+
+    titles = [user for user in accum]
+    fig = make_subplots(rows=int(len(accum) / 2) + (len(accum) % 2), cols=2, subplot_titles=titles)
+    fig.update_layout(showlegend=False)
+
+    curr_index = 0
+    for user in titles:
+        sort = sorted(accum[user], key=lambda i: i[0], reverse=False)
+        granularity = 10
+        dates = init.date() - np.arange(int((init.date() - d0).days / granularity)) * timedelta(days=granularity)
+        total_days = init.date() - d0
+        dates = np.flip(dates)
+        upvotes = np.zeros(len(dates))
+        for item in sort:
+            box = int((item[0].date() - d0).days / 10) - 1
+            upvotes[box] += item[1]
+
+        fig.add_trace(go.Scatter(x = dates, y = upvotes), row = int(curr_index / 2) + 1, col = (curr_index % 2) + 1)
+        curr_index += 1
+
+    fig.update_layout(height=1800, width=1200, title_text=emoji_name + "s over time")
+    if not os.path.exists("graphs"):
+        os.mkdir("graphs")
+    fig.write_html("graphs/%s_over_time.html" % emoji_name)
 
 def show_time_graph(user):
     init = datetime(2020, 12, 6)
@@ -185,6 +267,8 @@ def print_embeds_data():
     print(tabulate(result, headers=headers,tablefmt="fancy_grid"))
 
 # show_messages_by_date()
-show_time_graph("Cyber Jockey")
+# show_time_graph("Cyber Jockey")
 # print_embeds_data()
 # print_reaction_data()
+# print_reaction_totals()
+show_reaction_graph("reddit_downvote")

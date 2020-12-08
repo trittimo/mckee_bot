@@ -1,8 +1,9 @@
 data/private.json
 data/server.json
 data/messages/*
-.DS_Store
-.vscode/*
+data/graphs/*
 data/hidden/*
 data/json_messages/*
 data/messages_csv/*
+.DS_Store
+.vscode/*
