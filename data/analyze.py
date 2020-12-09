@@ -218,13 +218,12 @@ def show_time_graph(user):
 
 def show_messages_by_date():
     d0 = date(2016, 8, 27) # Start of the server
-    today = datetime.today().date()
-    granularity = 4
-    dates = today - np.arange(int((today - d0).days / granularity)) * timedelta(days=granularity)
+    d1 = date(2020, 12, 6) # End of the download
+    granularity = 7
+    dates = d1 - np.arange(int((d1 - d0).days / granularity)) * timedelta(days=granularity)
     dates = np.flip(dates)
+    users = [u for u in msg_timestamps if len(msg_timestamps[u]) >= 100 and u != "Rythm" and u != "NotSoBot"]
     values = []
-    users = ["Cyber Jockey", "Ballerarge", "Truths", "Lemmanade", "griseouslight", "AMcKee", "jeem", "chad", "magic the gather", "DatMass"]
-
     for user in users:
         current = np.zeros(len(dates))
         for d in msg_timestamps[user]:
@@ -245,7 +244,9 @@ def show_messages_by_date():
         title='Messages per %d days' % granularity,
         xaxis_nticks=35)
 
-    fig.show()
+    if not os.path.exists("graphs"):
+        os.mkdir("graphs")
+    fig.write_html("graphs/messages_per_week.html")
 
 def print_embeds_data():
     headers = ["User", "Total", "Attachments", "Images", "Videos", "Links"]
@@ -266,9 +267,32 @@ def print_embeds_data():
 
     print(tabulate(result, headers=headers,tablefmt="fancy_grid"))
 
+def print_avg_comment_length():
+    items = {}
+    for channel in messages:
+        for message in messages[channel]:
+            user = message["author"]["username"]
+            if not user in items:
+                items[user] = []
+            
+            if message["content"]:
+                items[user].append(len(message["content"]))
+    
+    headers = ["User", "Mean", "Median"]
+    result = []
+    for user in items:
+        if len(items[user]) < 100 or user == "Rythm":
+            continue
+        result.append([user, np.mean(items[user]), np.median(items[user])])
+
+    result.sort(key=lambda x: x[1], reverse=True)
+
+    print(tabulate(result, headers=headers, tablefmt="fancy_grid"))
+
+print_avg_comment_length()
 # show_messages_by_date()
 # show_time_graph("Cyber Jockey")
 # print_embeds_data()
 # print_reaction_data()
 # print_reaction_totals()
-show_reaction_graph("reddit_downvote")
+# show_reaction_graph("reddit_downvote")

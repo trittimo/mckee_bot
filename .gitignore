@@ -5,5 +5,6 @@ data/graphs/*
 data/hidden/*
 data/json_messages/*
 data/messages_csv/*
+data/sentiment/*
 .DS_Store
 .vscode/*
