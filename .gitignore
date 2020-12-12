@@ -8,3 +8,4 @@ data/messages_csv/*
 data/sentiment/*
 .DS_Store
 .vscode/*
+data/__pycache__
