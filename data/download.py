@@ -38,7 +38,7 @@ def try_get(url, headers, params = None):
     response = requests.get(url = url, params = params, headers = headers)
 
     attempts = 0
-    while attempts < 3:
+    while attempts < 10:
         if response.status_code == requests.codes.too_many:
             result = response.json()
             sleep_time = int(math.ceil(float(result["retry_after"]) / 1000)) * 5
