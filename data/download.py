@@ -92,7 +92,7 @@ def get_messages(channel, before):
     return response
 
 if __name__ == "__main__":
-    for channel in filter(lambda c: c["type"] == 0, get_channels(settings["guild"])):
+    for channel in filter(lambda c: c["type"] == 0, get_channels(settings["guild"])): # type: ignore
         if "include" in settings and not channel["name"] in settings["include"]:
             print("Channel '" + channel["name"] + "' not in include list")
             continue
@@ -135,4 +135,4 @@ if __name__ == "__main__":
             os.mkdir("messages")
 
         with open("messages/" + channel_name + ".pack", "wb") as file:
-            file.write(msgpack.packb(messages, use_bin_type=True))
+            file.write(msgpack.packb(messages, use_bin_type=True)) # type: ignore
