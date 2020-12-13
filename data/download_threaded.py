@@ -9,6 +9,9 @@ from terminal import Terminal, Colors
 import requests
 import math
 
+################ IMPORTANT: This doesn't work because Discord won't allow you to downloaded messages in a threaded fashion ################
+################ It was just a POC which didn't pan out ################
+
 class DiscordDownloader:
   def __init__(self, headers: dict, server: dict, threads: int, maxAttempts: int = 20, downloadReactions = True):
     self.headers = headers
