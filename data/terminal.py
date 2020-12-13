@@ -85,3 +85,9 @@ class Terminal:
   def useDefaultBuffer():
     sys.stdout.write("\033[?1049l") # Stop using alternate screen buffer
     sys.stdout.write("\033[?25h") # Unhide the cursor
+  
+  def __enter__(self):
+    Terminal.useAlternateBuffer()
+  
+  def __exit__(self, exc_type, exc_value, traceback):
+    Terminal.useDefaultBuffer()
