@@ -35,10 +35,14 @@ if not "guild" in settings:
     exit(1)
 
 def try_get(url, headers, params = None):
-    response = requests.get(url = url, params = params, headers = headers)
-
     attempts = 0
-    while attempts < 10:
+    while attempts < 20:
+        try:
+            response = requests.get(url = url, params = params, headers = headers)
+        except: # Probably a timeout. Just try again
+            log_print("Encountered exception while calling requests.get")
+            attempts += 1
+            continue
         if response.status_code == requests.codes.too_many:
             result = response.json()
             sleep_time = int(math.ceil(float(result["retry_after"]) / 1000)) * 5
