@@ -9,3 +9,6 @@ data/sentiment/*
 .DS_Store
 .vscode/*
 data/__pycache__
+data/johnposting/*
+
+ml/settings.json
