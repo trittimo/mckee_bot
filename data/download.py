@@ -11,7 +11,7 @@ def log_print(o):
     print(o)
     sys.stdout.flush()
 
-endpoint = "https://discordapp.com/api/v6"
+endpoint = "https://discord.com/api/v9"
 
 if not os.path.exists("private.json"):
     print("The working directory must include a private.json file")
