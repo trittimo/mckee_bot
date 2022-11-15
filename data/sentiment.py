@@ -22,7 +22,7 @@ def analyze(messages):
 def save_results(scores, filename):
     if not os.path.exists("sentiment"):
         os.mkdir("sentiment")
-    with open(filename, "w", newline="") as f:
+    with open(filename, "w", encoding="utf-8", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["ID", "Author", "Channel", "Time", "Message", "Positive", "Negative", "Neutral", "Compound"])
         for (message, score) in scores:
@@ -51,7 +51,7 @@ def create_chart(filename):
     messages = {}
     d0 = None
     d1 = None
-    with open(filename, newline="") as f:
+    with open(filename, encoding = "utf-8", newline="") as f:
         reader = csv.DictReader(f)
         for line in reader:
             line["Time"] = datetime.fromisoformat(line["Time"])
@@ -123,6 +123,9 @@ if __name__ == "__main__":
                 data = msgpack.unpackb(f.read(), raw=False)
             if len(data) > 0:
                 channel = server_channels[data[0]["channel_id"]]
+                if channel == "circlejerk":
+                    print("Skipping circlejerk")
+                    continue
                 if not channel in messages:
                     messages[channel] = []
                 for message in data:

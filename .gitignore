@@ -12,3 +12,5 @@ data/__pycache__
 data/johnposting/*
 
 ml/settings.json
+data/settings.json
+data/csv_messages/*

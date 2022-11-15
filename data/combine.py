@@ -35,3 +35,6 @@ for f in files:
 
 with open("json_messages/all.json", "w") as f:
     json.dump(result, f)
+
+with open("messages/all.pack", "wb") as f:
+    f.write(msgpack.packb(result, use_bin_type=True))

@@ -9,6 +9,7 @@ from datetime import timedelta
 import numpy as np
 from bisect import bisect
 import json
+import math
 
 most_upvotes = {}
 highest_upvotes = {}
@@ -175,7 +176,7 @@ def show_reaction_graph(emoji_name):
         dates = np.flip(dates)
         upvotes = np.zeros(len(dates))
         for item in sort:
-            box = int((item[0].date() - d0).days / 10) - 1
+            box = int(math.floor((item[0].date() - d0).days / granularity)) - 1
             upvotes[box] += item[1]
 
         fig.add_trace(go.Scatter(x = dates, y = upvotes), row = int(curr_index / 2) + 1, col = (curr_index % 2) + 1)
@@ -289,7 +290,7 @@ def print_avg_comment_length():
 
     print(tabulate(result, headers=headers, tablefmt="fancy_grid"))
 
-print_avg_comment_length()
+# print_avg_comment_length()
 # show_messages_by_date()
 # show_time_graph("Cyber Jockey")
 # print_embeds_data()

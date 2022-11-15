@@ -11,7 +11,7 @@ def log_print(o):
     print(o)
     sys.stdout.flush()
 
-endpoint = "https://discord.com/api/v9"
+endpoint = "https://discord.com/api/v9" 
 
 if not os.path.exists("private.json"):
     print("The working directory must include a private.json file")
@@ -39,8 +39,8 @@ def try_get(url, headers, params = None):
     while attempts < 20:
         try:
             response = requests.get(url = url, params = params, headers = headers)
-        except: # Probably a timeout. Just try again
-            log_print("Encountered exception while calling requests.get")
+        except Exception as e: # Probably a timeout. Just try again
+            log_print("Encountered exception while calling requests.get: " + str(e))
             attempts += 1
             continue
         if response.status_code == requests.codes.too_many:
